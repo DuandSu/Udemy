@@ -24,9 +24,23 @@ class Item(Resource):
         items.append(item)
         return item, 201
 
+    def put(self, name):
+        item = next(filter(lambda x: x['name'] == name, items), None)
+        data = request.get_json()
+
+        if (item):
+            item['price'] = data['price']
+        else:
+            item = {'name': name, 'price': data['price']}
+            items.append(item)
+            
+        return item, 201
+        
+
 class ItemList(Resource):
     def get(self):
         return {'items': items}
+
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
 
