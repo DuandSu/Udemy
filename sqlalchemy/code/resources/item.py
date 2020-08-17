@@ -19,7 +19,7 @@ class Item(Resource):
         return {'message': 'Item not found'}, 404
 
     def post(self, name):
-        if ItemModel.find_by_name(name):
+        if ItemModel.find_by_name(name): #!!!!!
             return {'message': "An item with name '{}' already exists.".format(name)}, 400
 
         data = Item.parser.parse_args()
@@ -27,22 +27,16 @@ class Item(Resource):
         item = ItemModel(name, data['price'])
         
         try:
-            item.insert()
+            item.save_to_db()
         except:
             return {"message": "An error occurred inserting the item."}, 500 # Internal Server Error
 
         return item.json(), 201
 
     def delete(self, name):
-
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-
-        query = "DELETE FROM items WHERE name=?"
-        cursor.execute(query, (name,))
-
-        connection.commit()
-        connection.close()
+        item = ItemModel.find_by_name(name)
+        if item:
+            item.delete_from_db()
 
         return {'message': 'Item deleted'}
 
@@ -50,20 +44,16 @@ class Item(Resource):
         data = Item.parser.parse_args()
         
         item = ItemModel.find_by_name(name)
-        updated_item = ItemModel(name, data['price'])
 
         #Udemy Video did reverse with "if item is None:"
         if item:
-            try:
-                updated_item.update()
-            except:
-                return {"message": "An error occurred updating the item."}, 500            
+            item.price = data['price']
         else:
-            try:
-                updated_item.insert()
-            except:
-                return {"message": "An error occurred inserting the item."}, 500
-        return updated_item.json(), 200
+            item = ItemModel(name, data['price'])
+
+        item.save_to_db()
+
+        return item.json()
 
 
 class ItemList(Resource):
