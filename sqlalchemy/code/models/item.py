@@ -17,11 +17,9 @@ class ItemModel(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
-        print(f"find_by_name: name: {name}")
-        tempObj = cls.query.filter_by(name=name).first()
-        print(f"find_by_name: tempObj: {tempObj}")
-        return tempObj
-        # return cls.query.filter_by(name=name).first() #!!!!!
+        # tempObj = cls.query.filter_by(name=name).first()
+        # return tempObj
+        return cls.query.filter_by(name=name).first() #!!!!!
 
     def save_to_db(self):
         db.session.add(self)
